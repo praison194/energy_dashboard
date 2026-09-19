@@ -186,14 +186,14 @@
   <section>
     <div class="sec-head">
       <h2>รายละเอียดรายวัน</h2>
-      <p>เลือกเดือนเพื่อดูแนวโน้มรายวัน — แกน Y คงที่ทุกเดือนเพื่อเทียบกันได้ตรงๆ</p>
-      <button class="ghost-light" id="exportBtn" type="button">⬇ ส่งออก Excel (ข้อมูลดิบรายเดือน)</button>
+      <p>เลือกเดือนเพื่อดูแนวโน้มรายวัน — แกน Y คงที่ทุกเดือน</p>
+      <button class="ghost-light" id="exportBtn" type="button">⬇ ส่งออก Excel</button>
     </div>
     <div class="panel">
       <div class="tabs" id="monthTabs"></div>
       <div class="mode-row">
         <div class="mode-tabs" id="modeTabs">
-          <div class="mode-tab" data-mode="raw">รายวัน (ค่าจริง)</div>
+          <div class="mode-tab" data-mode="raw">รายวัน</div>
           <div class="mode-tab active" data-mode="roll3">เฉลี่ยเคลื่อนที่ 3 วัน</div>
           <div class="mode-tab" data-mode="mtd">สะสมทั้งเดือน (MTD)</div>
         </div>
@@ -202,7 +202,7 @@
       <div class="chart-box"><canvas id="dailyChart"></canvas></div>
 
       <div class="sec-head" style="margin-top:24px;">
-        <h2 style="font-size:0.95rem;">ปฏิทินก๊าซรายวัน <span class="mini-unit">(ค่าจริงต่อวัน เทียบเป้าหมาย ≤ <span id="calGasTarget"></span> MMBTU/cu.m FG)</span></h2>
+        <h2 style="font-size:0.95rem;">ปฏิทินก๊าซธรรมชาติรายวัน <span class="mini-unit">เทียบเป้าหมาย ≤ <span id="calGasTarget"></span> MMBTU/cu.m FG)</span></h2>
       </div>
       <div class="cal-grid" id="calWeekdays">
         <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
@@ -218,8 +218,8 @@
   <section id="editPanel" class="panel">
     <div class="sec-head">
       <h2>โหมดธุรการ — บันทึกข้อมูลประจำวัน</h2>
-      <p>กรอกเฉพาะค่าที่อ่านจากมิเตอร์/บันทึกจริง (ตรงกับช่องไฮไลท์สีเหลืองในไฟล์ Excel) — ค่าที่เหลือคำนวณให้อัตโนมัติ</p>
-      <p style="color:var(--sub); font-size:0.75rem;">หน้านี้สำหรับธุรการที่คีย์ข้อมูลเท่านั้น — คนอื่นดูรายงานด้านบนพอ ไม่ต้องมาที่ส่วนนี้</p>
+      <p>กรอกเฉพาะค่าที่อ่านจากมิเตอร์/บันทึกจริง — ค่าที่เหลือคำนวณให้อัตโนมัติ</p>
+      <p style="color:var(--sub); font-size:0.75rem;">หน้านี้สำหรับธุรการที่คีย์ข้อมูลเท่านั้น</p>
     </div>
     <div class="edit-row">
       <div class="field" style="max-width:110px;"><label>ปี</label><select id="yearPick"></select></div>
@@ -229,18 +229,18 @@
 
     <div class="sec-head" style="margin-top:6px;">
       <h2 style="font-size:0.95rem;">เป้าหมายประจำปี</h2>
-      <p>เผื่อบริษัทปรับเป้าปีต่อปี — ค่านี้มีผลกับทั้งปีที่เลือกด้านบน</p>
+      <p>ปรับเป้าปีต่อปี — ค่านี้มีผลกับทั้งปีที่เลือกด้านบน</p>
     </div>
     <div class="edit-grid" id="targetFields" style="margin-top:0;"></div>
 
     <div class="sec-head" style="margin-top:6px;">
       <h2 style="font-size:0.95rem;">ค่าคงที่ประจำเดือน</h2>
-      <p>อัปเดตตอนได้บิลจริง (ก๊าซ/ไฟฟ้า) — ระหว่างเดือนใส่ค่าประมาณ/ของเดือนก่อนไปพลางๆ ได้</p>
+      <p>อัปเดตตอนได้บิลจริง (ก๊าซธรรมชาติ/ไฟฟ้า) — ระหว่างเดือนใส่ค่าประมาณ</p>
     </div>
     <div class="edit-grid" id="constFields" style="margin-top:0;"></div>
 
     <div class="sec-head" style="margin-top:10px;">
-      <h2 style="font-size:0.95rem;">ค่าที่อ่านจากมิเตอร์ของวันนั้น</h2>
+      <h2 style="font-size:0.95rem;">ข้อมูลประจำวัน</h2>
     </div>
     <div id="editFields"></div>
     <div class="preview" id="previewBox"></div>
@@ -252,7 +252,7 @@
   </section>
 
   <footer>
-    ข้อมูลอ้างอิงจากไฟล์ Energy_Consumption_2026.xlsm (ชีต All + รายเดือน) · ค่ารายวันคำนวณจากข้อมูลดิบของวันนั้นๆ ตามสูตรเดียวกับไฟล์ต้นฉบับ (ไม่ใช่ค่าเฉลี่ยสะสมแบบในไฟล์ Excel) · ค่าไฟฟ้ารวมรายวันหักส่วนแบ่งค่าไฟออฟฟิศเฉลี่ยต่อวันออกแล้ว และตรึงไว้ที่ 0 ในวันที่คำนวณได้ติดลบ (วันหยุด/ไม่มีการผลิต)
+    หมายเหตุ : รายงานก๊าซธรรมชาติรายวัน อาจเกิดการแกว่งได้ เนื่องจากเวลาตัดรอบการผลิตจะไม่ตรงกับกระบวนการอบไอน้ำ
   </footer>
   <div class="clerk-entry"><a href="javascript:void(0)" id="editToggleBtn">โหมดธุรการ</a></div>
 </div>
@@ -296,7 +296,7 @@
       return `<div class="kpi ${k.cls}">
         <div class="label"><span>${k.label} · ${monthTh[lastMonth]}</span>${tag}</div>
         <div class="big">${k.big}<span class="unit">${k.unit}</span></div>
-        <div class="target">${k.target!==null? 'เป้าหมาย ≤ '+k.target : ''}</div>
+        <div class="target">${k.target!==null? 'ค่าเฉลี่ยปีก่อนหน้า ≤ '+k.target : ''}</div>
         <div class="target">${k.ytd}</div>
       </div>`;
     }).join('');
@@ -316,7 +316,7 @@
         labels,
         datasets: [
           {type:'bar', label:'ค่าจริง', data: values, backgroundColor: values.map(v=> (target!=null && v>target) ? '#B23B3B' : color), borderRadius:2, order:2},
-          ...(target!=null ? [{type:'line', label:'เป้าหมาย', data: targetLine(target, labels.length), borderColor:'#5B6470', borderDash:[5,4], pointRadius:0, borderWidth:1.5, order:1}] : [])
+          ...(target!=null ? [{type:'line', label:'ค่าเฉลี่ยปีก่อนหน้า', data: targetLine(target, labels.length), borderColor:'#5B6470', borderDash:[5,4], pointRadius:0, borderWidth:1.5, order:1}] : [])
         ]
       },
       options: {
@@ -385,7 +385,7 @@
   const modeNotes = {
     raw: 'ค่าจริงรายวัน — อาจแกว่งแรงในวันที่ผลิตน้อย เพราะพลังงานพื้นฐาน (เช่นไฟส่องสว่าง) ยังใช้เท่าเดิมแต่หารด้วยยอดผลิตที่น้อยลง',
     roll3: 'ค่าเฉลี่ยเคลื่อนที่ 3 วัน (แนะนำ) — ลดผลกระทบจากวันที่ยอดผลิต/มิเตอร์บันทึกไม่ตรงรอบเวลาเดียวกันทุกวัน เห็นแนวโน้มชัดขึ้น',
-    mtd: 'ค่าสะสมตั้งแต่ต้นเดือน (แบบเดียวกับกราฟในไฟล์ Excel) — ยิ่งใกล้สิ้นเดือนยิ่งนิ่ง เหมาะดูว่าทั้งเดือนหลุดเป้าหรือไม่'
+    mtd: 'ค่าสะสมตั้งแต่ต้นเดือน  — ยิ่งใกล้สิ้นเดือนยิ่งนิ่ง เหมาะดูว่าทั้งเดือนหลุดเป้าหรือไม่'
   };
 
   const monthIndexMap = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
@@ -424,7 +424,7 @@
         data:{
           labels: s.days,
           datasets:[
-            {type:'line', label:'ก๊าซ (MMBTU/cu.m FG)', data:s.gas, borderColor:'#B5541D', backgroundColor:'#B5541D', yAxisID:'y', tension:0.3, pointRadius:2, spanGaps:true},
+            {type:'line', label:'ก๊าซธรรมชาติ (MMBTU/cu.m FG)', data:s.gas, borderColor:'#B5541D', backgroundColor:'#B5541D', yAxisID:'y', tension:0.3, pointRadius:2, spanGaps:true},
             {type:'line', label:'ไฟฟ้า (kWh/cu.m FG)', data:s.elec, borderColor:'#2C6E8C', backgroundColor:'#2C6E8C', yAxisID:'y1', tension:0.3, pointRadius:2, spanGaps:true},
           ]
         },
@@ -432,7 +432,7 @@
           responsive:true, maintainAspectRatio:false,
           plugins:{legend:{labels:{boxWidth:12, font:{family:'Inter', size:11}}}},
           scales:{
-            y:{position:'left', min:0, max: axisMax[currentMode].gas || undefined, title:{display:true, text:'ก๊าซ', font:{size:10}}, grid:{color:'rgba(0,0,0,0.06)'}},
+            y:{position:'left', min:0, max: axisMax[currentMode].gas || undefined, title:{display:true, text:'ก๊าซธรรมชาติ', font:{size:10}}, grid:{color:'rgba(0,0,0,0.06)'}},
             y1:{position:'right', min:0, max: axisMax[currentMode].elec || undefined, title:{display:true, text:'ไฟฟ้า', font:{size:10}}, grid:{display:false}},
             x:{title:{display:true, text:'วันที่ ('+monthTh[m]+')', font:{size:10}}, grid:{display:false}}
           }
@@ -477,7 +477,7 @@
 
   // ---- Yearly target edit (targets can change year to year) ----
   const targetFieldsDef = [
-    {key:'gas', label:'เป้าหมายก๊าซ (MMBTU/cu.m FG)'},
+    {key:'gas', label:'เป้าหมายก๊าซธรรมชาติ (MMBTU/cu.m FG)'},
     {key:'elec', label:'เป้าหมายไฟฟ้า (kWh/cu.m FG)'},
     {key:'water', label:'เป้าหมายน้ำ (cu.m/cu.m FG)'},
   ];
@@ -544,12 +544,12 @@
       {key:'rate_c', label:'RATE C (kWh)'},
     ]},
     {group:'โซลาร์', accent:'var(--solar)', fields:[
-      {key:'solar_used_raw', label:'ใช้ไป (ตามหน่วยไฟล์เดิม)'},
-      {key:'solar_produced_raw', label:'ผลิตได้ (ตามหน่วยไฟล์เดิม)'},
+      {key:'solar_used_raw', label:'ใช้ไป (MWh) '},
+      {key:'solar_produced_raw', label:'ผลิตได้ (MWh) '},
     ]},
     {group:'น้ำ', accent:'var(--water)', fields:[
-      {key:'water_meter', label:'มิเตอร์น้ำรวม (สะสม)'},
-      {key:'waste_meter', label:'มิเตอร์น้ำเสีย (สะสม)'},
+      {key:'water_meter', label:'มิเตอร์น้ำรวม (Cu.m.สะสม)'},
+      {key:'waste_meter', label:'มิเตอร์น้ำเสีย (Cu.m.สะสม)'},
     ]},
   ];
   const rawFieldsDef = rawFieldGroups.flatMap(g=>g.fields);
