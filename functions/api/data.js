@@ -1,4 +1,3 @@
-
 // GET /api/data
 // Returns the latest saved dashboard data from Cloudflare KV, or null if nothing
 // has been saved yet (in which case the page falls back to the data baked into
