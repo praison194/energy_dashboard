@@ -133,6 +133,87 @@
   .clerk-entry{text-align:center; margin-top:14px; padding-bottom:6px;}
   .clerk-entry a{font-size:0.72rem; color:var(--line); text-decoration:none;}
   .clerk-entry a:hover{color:var(--sub); text-decoration:underline;}
+
+
+  /* ===== Modern executive dashboard refresh ===== */
+  :root{
+    --radius:16px;
+    --shadow-sm:0 8px 24px rgba(27,33,38,.07);
+    --shadow-md:0 16px 42px rgba(27,33,38,.10);
+  }
+  body{
+    background:
+      radial-gradient(circle at 8% -10%, rgba(181,84,29,.08), transparent 28rem),
+      radial-gradient(circle at 92% 8%, rgba(44,110,140,.08), transparent 30rem),
+      var(--bg);
+  }
+  .band{
+    padding:34px 20px 76px;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(181,84,29,.20), transparent 24rem),
+      radial-gradient(circle at 85% 30%, rgba(44,110,140,.16), transparent 28rem),
+      var(--band);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .band-inner{align-items:center;}
+  .band h1{font-size:2rem; letter-spacing:-.04em;}
+  .band .org-name{font-size:.86rem; text-transform:uppercase; letter-spacing:.12em; color:#D9CFC0;}
+  .band .meta{max-width:760px; color:#ADB6C0;}
+  .band .year{
+    border:1px solid rgba(255,255,255,.14); border-radius:999px; padding:7px 13px;
+    background:rgba(255,255,255,.05); color:#DCE2E8; backdrop-filter:blur(8px);
+  }
+  .wrap{max-width:1240px; padding:0 22px 72px;}
+  .kpis{grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin:-48px 0 34px;}
+  .kpi{
+    border:1px solid color-mix(in srgb, var(--line) 82%, transparent);
+    border-radius:var(--radius); padding:20px 20px 17px; min-height:222px;
+    box-shadow:var(--shadow-md); overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .kpi:hover{transform:translateY(-2px); box-shadow:0 20px 48px rgba(27,33,38,.13);}
+  .kpi::before{left:0; right:0; top:0; bottom:auto; width:auto; height:4px;}
+  .kpi-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:14px;}
+  .kpi-title{font-family:var(--font-display); font-weight:600; font-size:.93rem; letter-spacing:-.01em;}
+  .kpi-period{font-family:var(--font-mono); font-size:.67rem; color:var(--sub); margin-top:2px;}
+  .kpi .tag{font-size:.68rem; padding:4px 8px; border-radius:999px; white-space:nowrap;}
+  .kpi-main{display:flex; align-items:baseline; flex-wrap:wrap; gap:6px; margin-bottom:2px;}
+  .kpi .big{font-size:2.25rem; line-height:1.1; letter-spacing:-.055em;}
+  .kpi .unit{font-size:.72rem; margin-left:0;}
+  .kpi-caption{font-size:.72rem; color:var(--sub); margin-top:5px;}
+  .kpi-divider{height:1px; background:var(--line); opacity:.75; margin:15px 0 12px;}
+  .kpi-meta-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .kpi-meta-item{min-width:0;}
+  .kpi-meta-label{font-size:.66rem; color:var(--sub); margin-bottom:2px;}
+  .kpi-meta-value{font-family:var(--font-mono); font-size:.82rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .kpi-total{font-size:.69rem; color:var(--sub); margin-top:10px; padding-top:9px; border-top:1px dashed var(--line);}
+  .kpi.gas .kpi-meta-value.current{color:var(--gas);} .kpi.elec .kpi-meta-value.current{color:var(--elec);}
+  .kpi.solar .kpi-meta-value.current{color:var(--solar);} .kpi.water .kpi-meta-value.current{color:var(--water);}
+  .panel{border-radius:var(--radius); box-shadow:var(--shadow-sm); padding:22px;}
+  .gas-focus{border-left:1px solid var(--line); position:relative; overflow:hidden;}
+  .gas-focus::before{content:""; position:absolute; left:0; top:0; right:0; height:4px; background:var(--gas);}
+  .sec-head h2{font-size:1.2rem; letter-spacing:-.02em;}
+  .grid3{gap:16px;}
+  .tabs{gap:7px;}
+  .tab{border-radius:999px; padding:7px 13px; transition:.15s ease;}
+  .tab.active{box-shadow:0 4px 12px rgba(0,0,0,.12);}
+  .mode-tabs{border-radius:999px; padding:4px;}
+  .mode-tab{border-radius:999px; padding:6px 12px;}
+  button.ghost-light,.btn-primary{border-radius:10px;}
+  button.ghost-light{box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .field input,.field select{border-radius:10px; padding:9px 10px;}
+  .field-group,.preview{border-radius:12px;}
+  .table-scroll{border:1px solid var(--line); border-radius:12px; overflow:auto;}
+  .table-scroll table{min-width:760px;}
+  th{background:color-mix(in srgb, var(--bg) 75%, var(--panel)); position:sticky; top:0; z-index:1;}
+  @media (max-width:1050px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media (max-width:620px){
+    .band{padding:28px 18px 70px;} .wrap{padding:0 14px 54px;}
+    .kpis{grid-template-columns:1fr; margin-top:-42px; gap:12px;}
+    .kpi{min-height:0;} .kpi .big{font-size:2.05rem;} .kpi-meta-grid{grid-template-columns:1fr 1fr;}
+    .panel{padding:16px;} .chart-box{height:250px;} .chart-box.tall{height:300px;}
+  }
+
 </style>
 </head>
 <body>
@@ -263,41 +344,89 @@
   const DATA = JSON.parse(document.getElementById('energy-data').textContent);
   const monthsAll = DATA.monthly.map(m=>m.month);
   const monthTh = Object.fromEntries(DATA.monthly.map(m=>[m.month, m.month_th]));
-  const yearTh = DATA.year_th || 2569;
+  let yearTh = DATA.year_th || 2569;
   const monthThYear = m => monthTh[m] + ' ' + yearTh;
   const hasData = m => (DATA.daily[m] && DATA.daily[m].length>0);
-  const dataMonths = monthsAll.filter(hasData);
-  const lastMonth = dataMonths[dataMonths.length-1] || monthsAll[0];
+  let dataMonths = [];
+  let lastMonth = monthsAll[0];
+  function refreshMonthState(){
+    dataMonths = monthsAll.filter(hasData);
+    lastMonth = dataMonths[dataMonths.length-1] || monthsAll[0];
+  }
+  refreshMonthState();
   const t = DATA.targets;
 
   const fmt = (n,d=1) => (n===null||n===undefined||isNaN(n)) ? '—' : Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
   function safe(fn){ try{ return fn(); }catch(e){ console.error(e); return null; } }
 
+  function ytdRows(){
+    return DATA.monthly.filter(m=>hasData(m.month));
+  }
   function ytdSum(field){
-    return DATA.monthly.filter(m=>hasData(m.month)).reduce((s,m)=> s + (m[field]||0), 0);
+    return ytdRows().reduce((sum,row)=> sum + (Number(row[field])||0), 0);
+  }
+  function ytdProduction(){ return ytdSum('produce_cuFG'); }
+  function ytdEfficiency(numeratorField){
+    const prod = ytdProduction();
+    return prod>0 ? ytdSum(numeratorField)/prod : null;
+  }
+  function ytdSolarSaving(){
+    const used = ytdSum('solar_used_kwh');
+    const grid = ytdSum('elec_total_kwh');
+    return (used+grid)>0 ? used/(used+grid)*100 : null;
   }
 
-  // ---- KPI cards ----
-  const lastRow = DATA.monthly.find(m=>m.month===lastMonth) || {};
+  // ---- KPI cards: BIG number = Year-to-Date efficiency; small number = latest month ----
   function renderKPIs(){
-    const kpiDefs = [
-      {cls:'gas', label:'ก๊าซธรรมชาติ', big: fmt(lastRow.gas_ratio,3), unit:'MMBTU/cu.m FG', target:t.gas, val:lastRow.gas_ratio, ytd:'YTD '+fmt(ytdSum('gas_mmbtu'),0)+' MMBTU'},
-      {cls:'elec', label:'ไฟฟ้า', big: fmt(lastRow.elec_ratio,2), unit:'kWh/cu.m FG', target:t.elec, val:lastRow.elec_ratio, ytd:'YTD '+fmt(ytdSum('elec_total_kwh'),0)+' kWh'},
-      {cls:'solar', label:'โซลาร์ %Saving', big: fmt(lastRow.solar_saving_pct,1), unit:'%', target:null, val:null, ytd:'YTD ผลิตได้ '+fmt(ytdSum('solar_produced_kwh'),0)+' kWh'},
-      {cls:'water', label:'น้ำ', big: fmt(lastRow.water_ratio,3), unit:'cu.m/cu.m FG', target:t.water, val:lastRow.water_ratio, ytd:'YTD '+fmt(ytdSum('water_cum'),0)+' cu.m'},
+    refreshMonthState();
+    const latestMonth = lastMonth;
+    const latestRow = DATA.monthly.find(m=>m.month===latestMonth) || {};
+    const firstMonth = dataMonths[0] || latestMonth;
+    const periodText = `${monthTh[firstMonth]}–${monthTh[latestMonth]} ${yearTh}`;
+    const defs = [
+      {
+        cls:'gas', label:'ก๊าซธรรมชาติ', big:ytdEfficiency('gas_mmbtu'), digits:3, unit:'MMBTU/cu.m FG',
+        target:t.gas, latest:latestRow.gas_ratio, latestDigits:3,
+        totalLabel:`ใช้สะสม ${fmt(ytdSum('gas_mmbtu'),0)} MMBTU`
+      },
+      {
+        cls:'elec', label:'ไฟฟ้า', big:ytdEfficiency('elec_total_kwh'), digits:2, unit:'kWh/cu.m FG',
+        target:t.elec, latest:latestRow.elec_ratio, latestDigits:2,
+        totalLabel:`ใช้สะสม ${fmt(ytdSum('elec_total_kwh'),0)} kWh`
+      },
+      {
+        cls:'solar', label:'โซลาร์ %Saving', big:ytdSolarSaving(), digits:1, unit:'%',
+        target:null, latest:latestRow.solar_saving_pct, latestDigits:1,
+        totalLabel:`ผลิตสะสม ${fmt(ytdSum('solar_produced_kwh'),0)} kWh`
+      },
+      {
+        cls:'water', label:'น้ำ', big:ytdEfficiency('water_cum'), digits:3, unit:'cu.m/cu.m FG',
+        target:t.water, latest:latestRow.water_ratio, latestDigits:3,
+        totalLabel:`ใช้สะสม ${fmt(ytdSum('water_cum'),0)} cu.m`
+      }
     ];
     const kpiRow = document.getElementById('kpiRow');
-    kpiRow.innerHTML = kpiDefs.map(k=>{
+    kpiRow.innerHTML = defs.map(k=>{
+      const statusValue = k.big;
       let tag = '';
-      if(k.target!==null && k.val!==null){
-        const pass = k.val <= k.target;
-        tag = `<span class="tag ${pass?'ok':'bad'}">${pass?'ตามเป้า':'เกินเป้า'}</span>`;
+      if(k.target!==null && statusValue!==null){
+        const pass = statusValue <= k.target;
+        tag = `<span class="tag ${pass?'ok':'bad'}">${pass?'ตามเป้า YTD':'เกินเป้า YTD'}</span>`;
       }
+      const targetText = k.target!==null ? `≤ ${fmt(k.target, k.cls==='elec'?3:3)}` : '—';
       return `<div class="kpi ${k.cls}">
-        <div class="label"><span>${k.label} · ${monthTh[lastMonth]}</span>${tag}</div>
-        <div class="big">${k.big}<span class="unit">${k.unit}</span></div>
-        <div class="target">${k.target!==null? 'เป้าหมาย ≤ '+k.target : ''}</div>
-        <div class="target">${k.ytd}</div>
+        <div class="kpi-head">
+          <div><div class="kpi-title">${k.label}</div><div class="kpi-period">YEAR TO DATE · ${periodText}</div></div>
+          ${tag}
+        </div>
+        <div class="kpi-main"><div class="big">${fmt(k.big,k.digits)}</div><span class="unit">${k.unit}</span></div>
+        <div class="kpi-caption">ประสิทธิภาพสะสมของปีถึงเดือนล่าสุด</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-meta-grid">
+          <div class="kpi-meta-item"><div class="kpi-meta-label">เดือนล่าสุด · ${monthThYear(latestMonth)}</div><div class="kpi-meta-value current">${fmt(k.latest,k.latestDigits)} ${k.unit}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-label">เป้าหมาย</div><div class="kpi-meta-value">${targetText}</div></div>
+        </div>
+        <div class="kpi-total">${k.totalLabel}</div>
       </div>`;
     }).join('');
   }
@@ -315,7 +444,7 @@
       data: {
         labels,
         datasets: [
-          {type:'bar', label:'ค่าจริง', data: values, backgroundColor: values.map(v=> (target!=null && v>target) ? '#B23B3B' : color), borderRadius:2, order:2},
+          {type:'bar', label:'ค่าจริง', data: values, backgroundColor: values.map(v=> (target!=null && v>target) ? '#B23B3B' : color), borderRadius:7, borderSkipped:false, order:2},
           ...(target!=null ? [{type:'line', label:'เป้าหมาย', data: targetLine(target, labels.length), borderColor:'#5B6470', borderDash:[5,4], pointRadius:0, borderWidth:1.5, order:1}] : [])
         ]
       },
@@ -370,17 +499,21 @@
     return {days, gas, elec};
   }
 
-  // Precompute global fixed axis max per mode (so switching months keeps the same scale)
+  // Global fixed axis max per mode (recalculated after remote load/save)
   const axisMax = {};
-  ['raw','roll3','mtd'].forEach(mode=>{
-    let gMax=0, eMax=0;
-    dataMonths.forEach(m=>{
-      const s = seriesForMode(m, mode);
-      s.gas.forEach(v=>{ if(v!=null && v>gMax) gMax=v; });
-      s.elec.forEach(v=>{ if(v!=null && v>eMax) eMax=v; });
+  function recomputeAxisMax(){
+    refreshMonthState();
+    ['raw','roll3','mtd'].forEach(mode=>{
+      let gMax=0, eMax=0;
+      dataMonths.forEach(m=>{
+        const series = seriesForMode(m, mode);
+        series.gas.forEach(v=>{ if(v!=null && v>gMax) gMax=v; });
+        series.elec.forEach(v=>{ if(v!=null && v>eMax) eMax=v; });
+      });
+      axisMax[mode] = { gas:gMax*1.15, elec:eMax*1.15 };
     });
-    axisMax[mode] = { gas: gMax*1.15, elec: eMax*1.15 };
-  });
+  }
+  recomputeAxisMax();
 
   const modeNotes = {
     raw: 'ค่าจริงรายวัน — อาจแกว่งแรงในวันที่ผลิตน้อย เพราะพลังงานพื้นฐาน (เช่นไฟส่องสว่าง) ยังใช้เท่าเดิมแต่หารด้วยยอดผลิตที่น้อยลง',
@@ -764,21 +897,51 @@
     }
   }
 
-  function recomputeFromMonth(startMonth){
-    const startIndex = Math.max(0, monthsAll.indexOf(startMonth));
-    for(let i=startIndex; i<monthsAll.length; i++){
-      const m = monthsAll[i];
-      if((DATA.daily[m]||[]).length) recomputeMonth(m);
+  // Recompute WATER ONLY, preserving trusted Gas / Electricity / Solar monthly values.
+  // This is used on page load and when propagating a changed cumulative meter into later months.
+  function recomputeWaterMonth(m){
+    const recs = (DATA.daily[m]||[]).slice().sort((a,b)=>a.day-b.day);
+    let {prevW, prevY} = getPreviousMeterReadings(m, 1);
+    let sumWater = 0;
+
+    recs.forEach(r=>{
+      const waterDiff = (r.water_meter!=null && prevW!=null) ? r.water_meter-prevW : null;
+      const wasteDiff = (r.waste_meter!=null && prevY!=null) ? r.waste_meter-prevY : null;
+      if(r.water_meter!=null) prevW = r.water_meter;
+      if(r.waste_meter!=null) prevY = r.waste_meter;
+
+      const processWater = (waterDiff!=null && wasteDiff!=null) ? waterDiff-wasteDiff : null;
+      const cuFG = Number(r.cuFG)||0; // use existing derived production; do not recalculate other KPIs here
+      const waterRatio = (cuFG>0 && processWater!=null) ? processWater/cuFG : null;
+      r.water_process_cum = processWater!=null ? Math.round(processWater*100)/100 : null;
+      r.water_ratio = waterRatio!=null ? Math.round(waterRatio*100000)/100000 : null;
+      if(processWater!=null) sumWater += processWater;
+    });
+
+    const row = DATA.monthly.find(x=>x.month===m);
+    if(row){
+      row.water_cum = Math.round(sumWater*10)/10;
+      const production = Number(row.produce_cuFG)||0;
+      row.water_ratio = production>0 ? Math.round((sumWater/production)*10000)/10000 : null;
     }
   }
 
-  function recomputeAllMonths(){
-    recomputeFromMonth(monthsAll[0]);
+  function recomputeWaterFromMonth(startMonth, includeStart=true){
+    let startIndex = Math.max(0, monthsAll.indexOf(startMonth));
+    if(!includeStart) startIndex += 1;
+    for(let i=startIndex; i<monthsAll.length; i++){
+      const m = monthsAll[i];
+      if((DATA.daily[m]||[]).length) recomputeWaterMonth(m);
+    }
   }
 
-  // Rebuild derived values once on page load so historical month-boundary
-  // water usage is corrected immediately (e.g. 31/08 -> 01/09).
-  recomputeAllMonths();
+  function recomputeAllWaterMonths(){
+    recomputeWaterFromMonth(monthsAll[0], true);
+  }
+
+  // Correct only cumulative water continuity on initial data.
+  // IMPORTANT: do not overwrite Gas / Electricity / Solar values loaded from the dataset/server.
+  recomputeAllWaterMonths();
   renderKPIs();
   renderMonthlyCharts();
   renderMonthTabs();
@@ -796,9 +959,14 @@
       DATA.monthly = remote.monthly || DATA.monthly;
       DATA.daily = remote.daily || DATA.daily;
       DATA.year_th = remote.year_th || DATA.year_th;
-      // Remote data may contain derived values calculated by an older version.
-      // Recompute them with cross-month meter continuity before rendering.
-      recomputeAllMonths();
+      yearTh = DATA.year_th || yearTh;
+      refreshMonthState();
+      currentMonth = lastMonth;
+      monthPick.value = lastMonth;
+      // Preserve server-authoritative Gas / Electricity / Solar values.
+      // Only repair water continuity across month boundaries.
+      recomputeAllWaterMonths();
+      recomputeAxisMax();
       renderKPIs(); renderMonthlyCharts(); renderMonthTabs();
       renderMonth(currentMonth);
       renderTargetFields(); renderConstFields(); renderEditFields();
@@ -827,9 +995,13 @@
     Object.assign(DATA.month_constants[m], constInputs);
     Object.assign(t, readTargetInputs());
     document.getElementById('gasTargetLabel').textContent = t.gas;
-    // Recompute this month and any later month with data, because the first
-    // day's water usage depends on the latest cumulative meter from before it.
-    recomputeFromMonth(m);
+    // Recompute every KPI for the month being edited.
+    // For later months, propagate ONLY cumulative water continuity so Gas / Electricity / Solar
+    // values are never unintentionally recalculated/overwritten.
+    recomputeMonth(m);
+    recomputeWaterFromMonth(m, false);
+    refreshMonthState();
+    recomputeAxisMax();
     renderKPIs();
     renderMonthlyCharts();
     renderMonthTabs();
