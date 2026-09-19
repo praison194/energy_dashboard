@@ -296,7 +296,7 @@
       return `<div class="kpi ${k.cls}">
         <div class="label"><span>${k.label} · ${monthTh[lastMonth]}</span>${tag}</div>
         <div class="big">${k.big}<span class="unit">${k.unit}</span></div>
-        <div class="target">${k.target!==null? 'ค่าเฉลี่ยปีก่อนหน้า ≤ '+k.target : ''}</div>
+        <div class="target">${k.target!==null? 'เป้าหมาย ≤ '+k.target : ''}</div>
         <div class="target">${k.ytd}</div>
       </div>`;
     }).join('');
@@ -316,7 +316,7 @@
         labels,
         datasets: [
           {type:'bar', label:'ค่าจริง', data: values, backgroundColor: values.map(v=> (target!=null && v>target) ? '#B23B3B' : color), borderRadius:2, order:2},
-          ...(target!=null ? [{type:'line', label:'ค่าเฉลี่ยปีก่อนหน้า', data: targetLine(target, labels.length), borderColor:'#5B6470', borderDash:[5,4], pointRadius:0, borderWidth:1.5, order:1}] : [])
+          ...(target!=null ? [{type:'line', label:'เป้าหมาย', data: targetLine(target, labels.length), borderColor:'#5B6470', borderDash:[5,4], pointRadius:0, borderWidth:1.5, order:1}] : [])
         ]
       },
       options: {
