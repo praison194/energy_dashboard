@@ -594,6 +594,49 @@
       </div>`).join('');
     updatePreview();
   }
+
+  // ---- Meter continuity across month boundaries ----
+  // Returns the latest available cumulative meter readings before the selected date.
+  // Search order:
+  //   1) earlier records in the same month
+  //   2) previous months (latest record first)
+  //   3) optional legacy month carry-in constants, if they exist
+  function getPreviousMeterReadings(m, day){
+    let prevW = null, prevY = null;
+
+    const sameMonth = (DATA.daily[m]||[])
+      .filter(r => r.day < day)
+      .slice()
+      .sort((a,b)=>b.day-a.day);
+
+    for(const r of sameMonth){
+      if(prevW==null && r.water_meter!=null) prevW = r.water_meter;
+      if(prevY==null && r.waste_meter!=null) prevY = r.waste_meter;
+      if(prevW!=null && prevY!=null) break;
+    }
+
+    const monthIndex = monthsAll.indexOf(m);
+    for(let i=monthIndex-1; i>=0 && (prevW==null || prevY==null); i--){
+      const prevMonth = monthsAll[i];
+      const prevMonthRecs = (DATA.daily[prevMonth]||[])
+        .slice()
+        .sort((a,b)=>b.day-a.day);
+
+      for(const r of prevMonthRecs){
+        if(prevW==null && r.water_meter!=null) prevW = r.water_meter;
+        if(prevY==null && r.waste_meter!=null) prevY = r.waste_meter;
+        if(prevW!=null && prevY!=null) break;
+      }
+    }
+
+    // Backward-compatible fallback for datasets that explicitly define a carry-in.
+    const c = DATA.month_constants[m] || {};
+    if(prevW==null && c.water_meter_prev!=null) prevW = c.water_meter_prev;
+    if(prevY==null && c.waste_meter_prev!=null) prevY = c.waste_meter_prev;
+
+    return {prevW, prevY};
+  }
+
   function computeDay(m, day, inputs, constOverride){
     const c = constOverride || DATA.month_constants[m];
     const produce = inputs.produce_mould||0, rs = inputs.rs_mould||0;
@@ -610,12 +653,8 @@
     const solarProdKwh = norm(inputs.solar_produced_raw);
     const denom = elecTotal + solarUsedKwh;
     const savingPct = denom ? solarUsedKwh/denom*100 : null;
-    // find previous day's meter readings for diff (within same month, else month carry-in)
-    const recs = (DATA.daily[m]||[]).slice().sort((a,b)=>a.day-b.day);
-    let prevW = null, prevY = null;
-    const prevRec = recs.filter(r=>r.day<day).slice(-1)[0];
-    if(prevRec){ prevW = prevRec.water_meter; prevY = prevRec.waste_meter; }
-    else { prevW = c.water_meter_prev; prevY = c.waste_meter_prev; }
+    // Find the latest meter readings before this date, including previous months.
+    const {prevW, prevY} = getPreviousMeterReadings(m, day);
     const waterDiff = (inputs.water_meter!=null && prevW!=null) ? inputs.water_meter-prevW : null;
     const wasteDiff = (inputs.waste_meter!=null && prevY!=null) ? inputs.waste_meter-prevY : null;
     const processWater = (waterDiff!=null && wasteDiff!=null) ? waterDiff-wasteDiff : null;
@@ -668,7 +707,9 @@
   function recomputeMonth(m){
     const c = DATA.month_constants[m];
     const recs = (DATA.daily[m]||[]).slice().sort((a,b)=>a.day-b.day);
-    let prevW = c.water_meter_prev, prevY = c.waste_meter_prev;
+    // Carry the cumulative meters in from the latest available record
+    // before day 1, including the previous month.
+    let {prevW, prevY} = getPreviousMeterReadings(m, 1);
     let sumCuFG=0,sumJ=0,sumP=0,sumA=0,sumB=0,sumCc=0,sumSolarUsed=0,sumSolarProd=0,sumAA=0;
     recs.forEach(r=>{
       const cuFG = ((r.produce_mould||0)-(r.rs_mould||0))*5.4*(1-c.pct_reject);
@@ -723,6 +764,26 @@
     }
   }
 
+  function recomputeFromMonth(startMonth){
+    const startIndex = Math.max(0, monthsAll.indexOf(startMonth));
+    for(let i=startIndex; i<monthsAll.length; i++){
+      const m = monthsAll[i];
+      if((DATA.daily[m]||[]).length) recomputeMonth(m);
+    }
+  }
+
+  function recomputeAllMonths(){
+    recomputeFromMonth(monthsAll[0]);
+  }
+
+  // Rebuild derived values once on page load so historical month-boundary
+  // water usage is corrected immediately (e.g. 31/08 -> 01/09).
+  recomputeAllMonths();
+  renderKPIs();
+  renderMonthlyCharts();
+  renderMonthTabs();
+  renderMonth(currentMonth);
+
   // ---- Backend save/load (Cloudflare Pages Functions + KV) ----
   async function loadRemoteData(){
     try{
@@ -735,6 +796,9 @@
       DATA.monthly = remote.monthly || DATA.monthly;
       DATA.daily = remote.daily || DATA.daily;
       DATA.year_th = remote.year_th || DATA.year_th;
+      // Remote data may contain derived values calculated by an older version.
+      // Recompute them with cross-month meter continuity before rendering.
+      recomputeAllMonths();
       renderKPIs(); renderMonthlyCharts(); renderMonthTabs();
       renderMonth(currentMonth);
       renderTargetFields(); renderConstFields(); renderEditFields();
@@ -763,7 +827,9 @@
     Object.assign(DATA.month_constants[m], constInputs);
     Object.assign(t, readTargetInputs());
     document.getElementById('gasTargetLabel').textContent = t.gas;
-    recomputeMonth(m);
+    // Recompute this month and any later month with data, because the first
+    // day's water usage depends on the latest cumulative meter from before it.
+    recomputeFromMonth(m);
     renderKPIs();
     renderMonthlyCharts();
     renderMonthTabs();
