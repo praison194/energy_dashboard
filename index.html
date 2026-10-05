@@ -602,7 +602,7 @@
     recs.forEach(r=>{
       const gasCls = (r.gas_ratio!=null && r.gas_ratio>t.gas) ? 'over':'under';
       const elCls = (r.elec_ratio!=null && r.elec_ratio>t.elec) ? 'over':'under';
-      bodyRows += `<tr><td>${r.day}</td><td>${fmt(r.cuFG,1)}</td><td class="${gasCls}">${fmt(r.gas_ratio,4)}</td><td class="${elCls}">${fmt(r.elec_ratio,2)}</td><td>${fmt(r.solar_produced_kwh,1)}</td><td>${fmt(r.water_process_cum,1)}</td></tr>`;
+      bodyRows += `<tr><td>${r.day}</td><td>${fmt(r.cuFG,1)}</td><td class="${gasCls}">${fmt(r.gas_ratio,4)}</td><td class="${elCls}">${fmt(r.elec_ratio,2)}</td><td>${fmt(r.solar_used_kwh,1)}</td><td>${fmt(r.water_process_cum,1)}</td></tr>`;
     });
 
     // Additive columns are summed. Ratio columns use a weighted monthly ratio; summing ratios would be mathematically incorrect.
@@ -610,7 +610,7 @@
     const totalProd = sumField('cuFG');
     const totalGas = sumField('gas_mmbtu');
     const totalElec = sumField('elec_total_kwh');
-    const totalSolar = sumField('solar_produced_kwh');
+    const totalSolar = sumField('solar_used_kwh');
     const totalWater = recs.reduce((sum,r)=> sum + (r.water_process_cum==null ? 0 : Number(r.water_process_cum)||0), 0);
     const gasWeighted = totalProd>0 ? totalGas/totalProd : null;
     const elecWeighted = totalProd>0 ? totalElec/totalProd : null;
@@ -618,7 +618,7 @@
     const elecTotalCls = (elecWeighted!=null && elecWeighted>t.elec) ? 'over':'under';
 
     tbl.innerHTML = `
-      <thead><tr><th>วันที่</th><th>ผลิต (cu.m FG)</th><th>ก๊าซ (MMBTU/cu.m FG)</th><th>ไฟฟ้า (kWh/cu.m FG)</th><th>โซลาร์ผลิตได้ (kWh)</th><th>น้ำใช้ (cu.m)</th></tr></thead>
+      <thead><tr><th>วันที่</th><th>ผลิต (cu.m FG)</th><th>ก๊าซ (MMBTU/cu.m FG)</th><th>ไฟฟ้า (kWh/cu.m FG)</th><th>โซลาร์ใช้ไป (kWh)</th><th>น้ำใช้ (cu.m)</th></tr></thead>
       <tbody>${bodyRows}</tbody>
       <tfoot><tr>
         <td>รวมเดือน<span class="summary-sub">Ratio = ค่าเฉลี่ยถ่วงน้ำหนัก</span></td>
