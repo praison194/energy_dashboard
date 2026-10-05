@@ -60,6 +60,7 @@
   .kpi .label{font-size:0.78rem; color:var(--sub); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;}
   .kpi .tag{font-size:0.68rem; padding:2px 7px; border-radius:10px; font-weight:600;}
   .tag.ok{background:#DDEBDF; color:var(--ok);} .tag.bad{background:#F4DCDC; color:var(--bad);}
+  .tag.info{background:var(--solar-soft); color:var(--solar);}
   .kpi .big{font-family:var(--font-mono); font-weight:600; font-size:1.9rem; letter-spacing:-0.5px;}
   .kpi .unit{font-size:0.75rem; color:var(--sub); font-weight:500; margin-left:4px;}
   .kpi .target{font-size:0.78rem; color:var(--sub); margin-top:6px;}
@@ -205,6 +206,12 @@
   .field-group,.preview{border-radius:12px;}
   .table-scroll{border:1px solid var(--line); border-radius:12px; overflow:auto;}
   .table-scroll table{min-width:760px;}
+  #dailyTable tfoot td{
+    background:color-mix(in srgb, var(--bg) 78%, var(--panel));
+    font-weight:700; border-top:2px solid var(--line); border-bottom:none;
+  }
+  #dailyTable tfoot td:first-child{font-family:var(--font-display);}
+  #dailyTable tfoot .summary-sub{display:block; margin-top:2px; color:var(--sub); font-size:.65rem; font-weight:500;}
   th{background:color-mix(in srgb, var(--bg) 75%, var(--panel)); position:sticky; top:0; z-index:1;}
   @media (max-width:1050px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
   @media (max-width:620px){
@@ -355,6 +362,7 @@
   }
   refreshMonthState();
   const t = DATA.targets;
+  const SOLAR_CAPACITY_KWP = 617.16; // Installed DC capacity
 
   const fmt = (n,d=1) => (n===null||n===undefined||isNaN(n)) ? '—' : Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
   function safe(fn){ try{ return fn(); }catch(e){ console.error(e); return null; } }
@@ -374,6 +382,10 @@
     const used = ytdSum('solar_used_kwh');
     const grid = ytdSum('elec_total_kwh');
     return (used+grid)>0 ? used/(used+grid)*100 : null;
+  }
+  function ytdSolarSpecificYield(){
+    const produced = ytdSum('solar_produced_kwh');
+    return SOLAR_CAPACITY_KWP>0 ? produced/SOLAR_CAPACITY_KWP : null;
   }
 
   // ---- KPI cards: BIG number = Year-to-Date efficiency; small number = latest month ----
@@ -397,7 +409,9 @@
       {
         cls:'solar', label:'โซลาร์ %Saving', big:ytdSolarSaving(), digits:1, unit:'%',
         target:null, latest:latestRow.solar_saving_pct, latestDigits:1,
-        totalLabel:`ผลิตสะสม ${fmt(ytdSum('solar_produced_kwh'),0)} kWh`
+        secondaryLabel:'Specific Yield (YTD)', secondaryValue:ytdSolarSpecificYield(), secondaryDigits:1, secondaryUnit:'kWh/kWp',
+        tagText:`${fmt(SOLAR_CAPACITY_KWP,2)} kWp`,
+        totalLabel:`ผลิตสะสม ${fmt(ytdSum('solar_produced_kwh'),0)} kWh · ใช้งาน ${fmt(ytdSum('solar_used_kwh'),0)} kWh`
       },
       {
         cls:'water', label:'น้ำ', big:ytdEfficiency('water_cum'), digits:3, unit:'cu.m/cu.m FG',
@@ -412,8 +426,14 @@
       if(k.target!==null && statusValue!==null){
         const pass = statusValue <= k.target;
         tag = `<span class="tag ${pass?'ok':'bad'}">${pass?'ตามเป้า YTD':'เกินเป้า YTD'}</span>`;
+      } else if(k.tagText){
+        tag = `<span class="tag info">${k.tagText}</span>`;
       }
       const targetText = k.target!==null ? `≤ ${fmt(k.target, k.cls==='elec'?3:3)}` : '—';
+      const secondaryLabel = k.secondaryLabel || 'เป้าหมาย';
+      const secondaryText = k.secondaryLabel
+        ? `${fmt(k.secondaryValue, k.secondaryDigits ?? 1)} ${k.secondaryUnit || ''}`
+        : targetText;
       return `<div class="kpi ${k.cls}">
         <div class="kpi-head">
           <div><div class="kpi-title">${k.label}</div><div class="kpi-period">YEAR TO DATE · ${periodText}</div></div>
@@ -424,7 +444,7 @@
         <div class="kpi-divider"></div>
         <div class="kpi-meta-grid">
           <div class="kpi-meta-item"><div class="kpi-meta-label">เดือนล่าสุด · ${monthThYear(latestMonth)}</div><div class="kpi-meta-value current">${fmt(k.latest,k.latestDigits)} ${k.unit}</div></div>
-          <div class="kpi-meta-item"><div class="kpi-meta-label">เป้าหมาย</div><div class="kpi-meta-value">${targetText}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-label">${secondaryLabel}</div><div class="kpi-meta-value">${secondaryText}</div></div>
         </div>
         <div class="kpi-total">${k.totalLabel}</div>
       </div>`;
@@ -578,13 +598,36 @@
       tbl.innerHTML = '<tr><td>ยังไม่มีข้อมูลรายวันสำหรับเดือนนี้</td></tr>';
       return;
     }
-    let rows = '<tr><th>วันที่</th><th>ผลิต (cu.m FG)</th><th>ก๊าซ (MMBTU/cu.m FG)</th><th>ไฟฟ้า (kWh/cu.m FG)</th><th>โซลาร์ผลิตได้ (kWh)</th><th>น้ำใช้ (cu.m)</th></tr>';
+    let bodyRows = '';
     recs.forEach(r=>{
       const gasCls = (r.gas_ratio!=null && r.gas_ratio>t.gas) ? 'over':'under';
       const elCls = (r.elec_ratio!=null && r.elec_ratio>t.elec) ? 'over':'under';
-      rows += `<tr><td>${r.day}</td><td>${fmt(r.cuFG,1)}</td><td class="${gasCls}">${fmt(r.gas_ratio,4)}</td><td class="${elCls}">${fmt(r.elec_ratio,2)}</td><td>${fmt(r.solar_produced_kwh,1)}</td><td>${fmt(r.water_process_cum,1)}</td></tr>`;
+      bodyRows += `<tr><td>${r.day}</td><td>${fmt(r.cuFG,1)}</td><td class="${gasCls}">${fmt(r.gas_ratio,4)}</td><td class="${elCls}">${fmt(r.elec_ratio,2)}</td><td>${fmt(r.solar_produced_kwh,1)}</td><td>${fmt(r.water_process_cum,1)}</td></tr>`;
     });
-    tbl.innerHTML = rows;
+
+    // Additive columns are summed. Ratio columns use a weighted monthly ratio; summing ratios would be mathematically incorrect.
+    const sumField = field => recs.reduce((sum,r)=> sum + (Number(r[field])||0), 0);
+    const totalProd = sumField('cuFG');
+    const totalGas = sumField('gas_mmbtu');
+    const totalElec = sumField('elec_total_kwh');
+    const totalSolar = sumField('solar_produced_kwh');
+    const totalWater = recs.reduce((sum,r)=> sum + (r.water_process_cum==null ? 0 : Number(r.water_process_cum)||0), 0);
+    const gasWeighted = totalProd>0 ? totalGas/totalProd : null;
+    const elecWeighted = totalProd>0 ? totalElec/totalProd : null;
+    const gasTotalCls = (gasWeighted!=null && gasWeighted>t.gas) ? 'over':'under';
+    const elecTotalCls = (elecWeighted!=null && elecWeighted>t.elec) ? 'over':'under';
+
+    tbl.innerHTML = `
+      <thead><tr><th>วันที่</th><th>ผลิต (cu.m FG)</th><th>ก๊าซ (MMBTU/cu.m FG)</th><th>ไฟฟ้า (kWh/cu.m FG)</th><th>โซลาร์ผลิตได้ (kWh)</th><th>น้ำใช้ (cu.m)</th></tr></thead>
+      <tbody>${bodyRows}</tbody>
+      <tfoot><tr>
+        <td>รวมเดือน<span class="summary-sub">Ratio = ค่าเฉลี่ยถ่วงน้ำหนัก</span></td>
+        <td>${fmt(totalProd,1)}</td>
+        <td class="${gasTotalCls}">${fmt(gasWeighted,4)}</td>
+        <td class="${elecTotalCls}">${fmt(elecWeighted,2)}</td>
+        <td>${fmt(totalSolar,1)}</td>
+        <td>${fmt(totalWater,1)}</td>
+      </tr></tfoot>`;
   }
   function renderMonthTabs(){
     monthTabs.innerHTML = '';
