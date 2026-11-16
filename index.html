@@ -122,6 +122,12 @@
   @media (max-width:800px){ .field-group-grid{grid-template-columns:repeat(2,1fr);} }
   .field label{display:block; font-size:0.72rem; color:var(--sub); margin-bottom:4px;}
   .field input, .field select{width:100%; padding:7px 8px; border:1px solid var(--line); border-radius:var(--radius); font-family:var(--font-mono); font-size:0.85rem; background:var(--bg); color:var(--ink);}
+  .date-stepper{display:grid; grid-template-columns:40px minmax(64px,1fr) 40px; gap:6px; align-items:center;}
+  .date-stepper input{text-align:center; min-width:0; appearance:textfield; -moz-appearance:textfield;}
+  .date-stepper input::-webkit-outer-spin-button,.date-stepper input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  .date-step-btn{height:38px; border:1px solid var(--line); border-radius:10px; background:var(--panel); color:var(--ink); font-family:var(--font-mono); font-size:1.1rem; font-weight:700; cursor:pointer; line-height:1;}
+  .date-step-btn:hover{border-color:var(--sub); transform:translateY(-1px);}
+  .date-step-btn:disabled{opacity:.35; cursor:not-allowed; transform:none;}
   .edit-actions{display:flex; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap;}
   .btn-primary{background:var(--ink); color:var(--bg); border:none; padding:9px 18px; border-radius:var(--radius); font-family:var(--font-body); font-weight:600; font-size:0.85rem; cursor:pointer;}
   .btn-primary:disabled{opacity:0.5; cursor:default;}
@@ -312,7 +318,14 @@
     <div class="edit-row">
       <div class="field" style="max-width:110px;"><label>ปี</label><select id="yearPick"></select></div>
       <div class="field" style="max-width:160px;"><label>เดือน</label><select id="monthPick"></select></div>
-      <div class="field" style="max-width:110px;"><label>วันที่</label><input type="number" id="dayPick" min="1" max="31" value="1"></div>
+      <div class="field" style="max-width:170px;">
+        <label>วันที่</label>
+        <div class="date-stepper">
+          <button class="date-step-btn" id="dayPrevBtn" type="button" aria-label="วันก่อนหน้า">−</button>
+          <input type="number" id="dayPick" min="1" max="31" value="1" inputmode="numeric">
+          <button class="date-step-btn" id="dayNextBtn" type="button" aria-label="วันถัดไป">+</button>
+        </div>
+      </div>
     </div>
 
     <div class="sec-head" style="margin-top:6px;">
@@ -599,10 +612,17 @@
       return;
     }
     let bodyRows = '';
+    // Waste meter is cumulative. Show the daily/period wastewater usage as the delta
+    // from the latest available prior reading, including the previous month.
+    let {prevY: tablePrevWaste} = getPreviousMeterReadings(m, 1);
+    let totalWaste = 0;
     recs.forEach(r=>{
       const gasCls = (r.gas_ratio!=null && r.gas_ratio>t.gas) ? 'over':'under';
       const elCls = (r.elec_ratio!=null && r.elec_ratio>t.elec) ? 'over':'under';
-      bodyRows += `<tr><td>${r.day}</td><td>${fmt(r.cuFG,1)}</td><td class="${gasCls}">${fmt(r.gas_ratio,4)}</td><td class="${elCls}">${fmt(r.elec_ratio,2)}</td><td>${fmt(r.solar_used_kwh,1)}</td><td>${fmt(r.water_process_cum,1)}</td></tr>`;
+      const wasteUsed = (r.waste_meter!=null && tablePrevWaste!=null) ? r.waste_meter-tablePrevWaste : null;
+      if(r.waste_meter!=null) tablePrevWaste = r.waste_meter;
+      if(wasteUsed!=null) totalWaste += wasteUsed;
+      bodyRows += `<tr><td>${r.day}</td><td>${fmt(r.cuFG,1)}</td><td class="${gasCls}">${fmt(r.gas_ratio,4)}</td><td class="${elCls}">${fmt(r.elec_ratio,2)}</td><td>${fmt(r.solar_used_kwh,1)}</td><td>${fmt(r.water_process_cum,1)}</td><td>${fmt(wasteUsed,1)}</td></tr>`;
     });
 
     // Additive columns are summed. Ratio columns use a weighted monthly ratio; summing ratios would be mathematically incorrect.
@@ -618,7 +638,7 @@
     const elecTotalCls = (elecWeighted!=null && elecWeighted>t.elec) ? 'over':'under';
 
     tbl.innerHTML = `
-      <thead><tr><th>วันที่</th><th>ผลิต (cu.m FG)</th><th>ก๊าซ (MMBTU/cu.m FG)</th><th>ไฟฟ้า (kWh/cu.m FG)</th><th>โซลาร์ใช้ไป (kWh)</th><th>น้ำใช้ (cu.m)</th></tr></thead>
+      <thead><tr><th>วันที่</th><th>ผลิต (cu.m FG)</th><th>ก๊าซ (MMBTU/cu.m FG)</th><th>ไฟฟ้า (kWh/cu.m FG)</th><th>โซลาร์ใช้ไป (kWh)</th><th>น้ำใช้ (cu.m)</th><th>น้ำเสีย (cu.m)</th></tr></thead>
       <tbody>${bodyRows}</tbody>
       <tfoot><tr>
         <td>รวมเดือน<span class="summary-sub">Ratio = ค่าเฉลี่ยถ่วงน้ำหนัก</span></td>
@@ -627,6 +647,7 @@
         <td class="${elecTotalCls}">${fmt(elecWeighted,2)}</td>
         <td>${fmt(totalSolar,1)}</td>
         <td>${fmt(totalWater,1)}</td>
+        <td>${fmt(totalWaste,1)}</td>
       </tr></tfoot>`;
   }
   function renderMonthTabs(){
@@ -746,12 +767,66 @@
   });
   monthPick.value = lastMonth;
   const dayPick = document.getElementById('dayPick');
-  const lastRec = (DATA.daily[lastMonth]||[]).slice().sort((a,b)=>b.day-a.day)[0];
-  dayPick.value = lastRec ? Math.min(lastRec.day+1, 31) : 1;
+  const dayPrevBtn = document.getElementById('dayPrevBtn');
+  const dayNextBtn = document.getElementById('dayNextBtn');
 
   const editFields = document.getElementById('editFields');
   function findRec(m, day){
     return (DATA.daily[m]||[]).find(r=>r.day===day);
+  }
+
+  function daysInAdminMonth(m){
+    const yearCe = (Number(DATA.year_th)||2569) - 543;
+    const monthIndex = monthsAll.indexOf(m);
+    return new Date(yearCe, monthIndex+1, 0).getDate();
+  }
+
+  function latestSavedDayInMonth(m){
+    const recs = (DATA.daily[m]||[]).filter(r=>Number.isFinite(Number(r.day)));
+    return recs.length ? Math.max(...recs.map(r=>Number(r.day))) : null;
+  }
+
+  function updateDateStepperState(){
+    const m = monthPick.value;
+    const maxDay = daysInAdminMonth(m);
+    let day = parseInt(dayPick.value,10);
+    if(!Number.isFinite(day)) day = 1;
+    day = Math.min(Math.max(day,1),maxDay);
+    dayPick.max = maxDay;
+    dayPick.value = day;
+    const mi = monthsAll.indexOf(m);
+    dayPrevBtn.disabled = (mi===0 && day===1);
+    dayNextBtn.disabled = (mi===monthsAll.length-1 && day===maxDay);
+  }
+
+  function setAdminDate(m, day, shouldRender=true){
+    if(!monthsAll.includes(m)) m = monthsAll[0];
+    monthPick.value = m;
+    const maxDay = daysInAdminMonth(m);
+    const safeDay = Math.min(Math.max(Number(day)||1,1),maxDay);
+    dayPick.max = maxDay;
+    dayPick.value = safeDay;
+    updateDateStepperState();
+    if(shouldRender) renderEditFields();
+  }
+
+  function setAdminToLatestSaved(shouldRender=true){
+    refreshMonthState();
+    const m = lastMonth;
+    const latestDay = latestSavedDayInMonth(m) || 1;
+    setAdminDate(m, latestDay, shouldRender);
+  }
+
+  function stepAdminDate(delta){
+    updateDateStepperState();
+    const yearCe = (Number(DATA.year_th)||2569) - 543;
+    const monthIndex = monthsAll.indexOf(monthPick.value);
+    const day = parseInt(dayPick.value,10) || 1;
+    const d = new Date(yearCe, monthIndex, day);
+    d.setDate(d.getDate()+delta);
+    // Current dataset/UI supports one year only; keep stepping within that year.
+    if(d.getFullYear()!==yearCe) return;
+    setAdminDate(monthsAll[d.getMonth()], d.getDate(), true);
   }
   function renderEditFields(){
     renderConstFields();
@@ -868,16 +943,25 @@
       warnEl.textContent = '';
     }
   }
-  monthPick.addEventListener('change', renderEditFields);
-  dayPick.addEventListener('change', renderEditFields);
+  monthPick.addEventListener('change', ()=>{
+    // When the admin chooses a month, jump to that month's latest saved date.
+    const latestDay = latestSavedDayInMonth(monthPick.value) || 1;
+    setAdminDate(monthPick.value, latestDay, true);
+  });
+  dayPick.addEventListener('change', ()=>{
+    updateDateStepperState();
+    renderEditFields();
+  });
+  dayPrevBtn.addEventListener('click', ()=>stepAdminDate(-1));
+  dayNextBtn.addEventListener('click', ()=>stepAdminDate(1));
   editFields.addEventListener('input', updatePreview);
   constFieldsEl.addEventListener('input', updatePreview);
-  renderEditFields();
+  setAdminToLatestSaved(true);
 
   document.getElementById('editToggleBtn').addEventListener('click', ()=>{
     const panel = document.getElementById('editPanel');
     panel.classList.toggle('open');
-    if(panel.classList.contains('open')) renderEditFields();
+    if(panel.classList.contains('open')) setAdminToLatestSaved(true);
   });
 
   function recomputeMonth(m){
@@ -1005,7 +1089,7 @@
       yearTh = DATA.year_th || yearTh;
       refreshMonthState();
       currentMonth = lastMonth;
-      monthPick.value = lastMonth;
+      setAdminToLatestSaved(false);
       // Preserve server-authoritative Gas / Electricity / Solar values.
       // Only repair water continuity across month boundaries.
       recomputeAllWaterMonths();
